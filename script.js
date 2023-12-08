@@ -69,7 +69,7 @@ function startAutoClicker() {
 function handleUpgradeClick() {
     if (clicks >= upgradeMoney) {
         clicks -= upgradeMoney;
-        clicksMultiplier += 1;
+        clicksMultiplier *= 2;
         upgradeMoney *= 2;
         upgrade.textContent = `Upgrade: ${upgradeMoney}`;
         updateCookieCounter();
