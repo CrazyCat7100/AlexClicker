@@ -1,20 +1,23 @@
-let cookie = document.getElementsByClassName('cookie')[0];
-let cookieCounter = document.getElementsByClassName('cookie_counter')[0];
-let clicks = parseInt(localStorage.getItem('clicks')) || 0;
-let upgrade = document.getElementsByClassName('upgrade')[0];
-let clicksMultiplier = parseInt(localStorage.getItem('clicksMultiplier')) || 1;
-let upgradeMoney = parseInt(localStorage.getItem('upgradeMoney')) || 10;
-let autoClicker = document.getElementsByClassName('autoclicker')[0];
-let autoClickerTime = parseInt(localStorage.getItem('autoClickerTime')) || 1000;
-let autoClickerCost = parseInt(localStorage.getItem('autoClickerCost')) || 1000;
-let initialAutoClickerTime = autoClickerTime; // Preserve the initial autoClickerTime
-let autoClickInterval;
-let clearConfirm = document.getElementsByClassName('clearconfirm')[0];
-let clearData = document.getElementsByClassName('cleardata')[0];
-let cancel = document.getElementsByClassName('cancel')[0];
-let confirm = document.getElementsByClassName('confirm')[0];
+const initialAutoClickerTime = 2000;
+const initialUpgradeMoney = 10;
+const initialAutoClickerCost = 1000;
 
-// Function to update localStorage values
+const cookie = document.querySelector('.cookie');
+const cookieCounter = document.querySelector('.cookie_counter');
+const upgrade = document.querySelector('.upgrade');
+const autoClicker = document.querySelector('.autoclicker');
+const clearConfirm = document.querySelector('.clearconfirm');
+const clearData = document.querySelector('.cleardata');
+const cancel = document.querySelector('.cancel');
+const confirm = document.querySelector('.confirm');
+
+let clicks = parseInt(localStorage.getItem('clicks')) || 0;
+let clicksMultiplier = parseInt(localStorage.getItem('clicksMultiplier')) || 1;
+let upgradeMoney = parseInt(localStorage.getItem('upgradeMoney')) || initialUpgradeMoney;
+let autoClickerTime = parseInt(localStorage.getItem('autoClickerTime')) || initialAutoClickerTime;
+let autoClickerCost = parseInt(localStorage.getItem('autoClickerCost')) || initialAutoClickerCost;
+let autoClickInterval;
+
 function updateLocalStorage() {
     localStorage.setItem('clicks', clicks);
     localStorage.setItem('clicksMultiplier', clicksMultiplier);
@@ -23,144 +26,132 @@ function updateLocalStorage() {
     localStorage.setItem('autoClickerCost', autoClickerCost);
 }
 
-// Function to start the auto-clicker interval
+function updateCookieCounter() {
+    cookieCounter.textContent = `${clicks} Cookies`;
+}
+
+function createPlusOneAnimation(event) {
+    const plusOne = document.createElement('div');
+    plusOne.textContent = `+${clicksMultiplier}`;
+    plusOne.classList.add('plus_one');
+    document.body.appendChild(plusOne);
+
+    const { clientX: clickX, clientY: clickY } = event;
+
+    plusOne.style.left = `${clickX}px`;
+    plusOne.style.top = `${clickY}px`;
+
+    setTimeout(() => {
+        plusOne.style.opacity = '0';
+        plusOne.style.top = `${clickY - 50}px`;
+    }, 50);
+
+    setTimeout(() => {
+        document.body.removeChild(plusOne);
+    }, 1000);
+}
+
+function handleCookieClick(event) {
+    clicks += clicksMultiplier;
+    updateCookieCounter();
+    updateLocalStorage();
+    createPlusOneAnimation(event);
+}
+
 function startAutoClicker() {
     autoClickInterval = setInterval(function () {
         clicks += clicksMultiplier;
         updateCookieCounter();
         updateLocalStorage();
-    }, autoClickerTime); // Use autoClickerTime for the interval
+    }, autoClickerTime);
 }
 
-// Function to update the UI with the current number of cookies
-function updateCookieCounter() {
-    cookieCounter.textContent = clicks + ' Cookies';
-}
-
-// Function to create a floating +1 element and animate it
-function createPlusOneAnimation(event) {
-    const plusOne = document.createElement('div');
-    plusOne.textContent = '+' + clicksMultiplier;
-    plusOne.classList.add('plus_one');
-    document.body.appendChild(plusOne);
-
-    const clickX = event.clientX;
-    const clickY = event.clientY;
-
-    plusOne.style.left = clickX + 'px';
-    plusOne.style.top = clickY + 'px';
-
-    setTimeout(() => {
-        plusOne.style.opacity = '0';
-        plusOne.style.top = (clickY - 50) + 'px'; // Move the +1 element up
-    }, 50);
-
-    setTimeout(() => {
-        document.body.removeChild(plusOne); // Remove the +1 element from the DOM after animation
-    }, 1000); // Adjust this time to control how long the +1 element stays visible
-}
-
-// Function to handle cookie click event
-function handleCookieClick(event) {
-    clicks += clicksMultiplier;
-    updateCookieCounter();
-    updateLocalStorage();
-
-    createPlusOneAnimation(event);
-}
-
-// Function to handle the upgrade button click event
 function handleUpgradeClick() {
     if (clicks >= upgradeMoney) {
         clicks -= upgradeMoney;
         clicksMultiplier += 1;
         upgradeMoney *= 2;
-        upgrade.textContent = ('Upgrade: ' + upgradeMoney);
+        upgrade.textContent = `Upgrade: ${upgradeMoney}`;
         updateCookieCounter();
         updateLocalStorage();
     }
 }
 
-// Function to handle the auto-clicker button click event
 function handleAutoClickerClick() {
     if (clicks >= autoClickerCost) {
         clicks -= autoClickerCost;
-        
 
-        // Set the flag to indicate the auto-clicker is active
         localStorage.setItem('autoClickerActive', 'true');
 
-        startAutoClicker(); // Start the auto-clicker interval with the current autoClickerTime
+        startAutoClicker();
         autoClickerCost *= 2;
-        
-        // Increase the auto-clicker time by doubling the initial autoClickerTime
-        autoClickerTime = initialAutoClickerTime * Math.pow(0.8, clicksMultiplier - 1);
-        localStorage.setItem('autoClickerTime', autoClickerTime);
 
-        autoClicker.textContent = ('Upgrade Auto Clicker: ' + autoClickerCost);
+        // Update autoClickerTime to make the auto-clicker exactly 2x faster
+        autoClickerTime /= 2;
+
+        autoClicker.textContent = `Upgrade Auto Clicker: ${autoClickerCost}`;
         autoClicker.style.fontSize = '25px';
         updateCookieCounter();
+        localStorage.setItem('autoClickerTime', autoClickerTime); // Update autoClickerTime in localStorage
         updateLocalStorage();
     }
 }
 
-// Function to clear all data
 function clearAllData() {
     clicks = 0;
     clicksMultiplier = 1;
-    upgradeMoney = 10;
-    autoClickerTime = 1000;
-    autoClickerCost = 1000;
+    upgradeMoney = initialUpgradeMoney;
+    autoClickerCost = initialAutoClickerCost;
 
     clearInterval(autoClickInterval);
     autoClickInterval = null;
 
-    // Clear the auto-clicker flag
     localStorage.removeItem('autoClickerActive');
+    localStorage.setItem('clicks', clicks);
+    localStorage.setItem('clicksMultiplier', clicksMultiplier);
+    localStorage.setItem('upgradeMoney', upgradeMoney);
+    
+    // Reset autoClickerTime to its default value
+    autoClickerTime = initialAutoClickerTime;
+    localStorage.setItem('autoClickerTime', autoClickerTime);
+    
+    localStorage.setItem('autoClickerCost', autoClickerCost);
 
     updateCookieCounter();
-    upgrade.textContent = ('Upgrade: ' + upgradeMoney);
-    autoClicker.textContent = ('Auto Clicker: ' + autoClickerCost);
-
-    updateLocalStorage();
+    upgrade.textContent = `Upgrade: ${upgradeMoney}`;
+    autoClicker.textContent = `Auto Clicker: ${autoClickerCost}`;
 }
 
-// Function to handle the confirmation of clearing data
 function handleConfirmClick() {
     clearAllData();
     clearConfirm.style.display = 'none';
 
-    // Restart auto-clicker if it was active before clearing data
-    if (autoClickInterval) {
+    if (localStorage.getItem('autoClickerActive') === 'true') {
         startAutoClicker();
     }
 }
 
-// Function to handle cancelling the data clearing process
 function handleCancelClick() {
     clearConfirm.style.display = 'none';
 }
 
-// Function to start the auto-clicker interval after page load
 function initiateAutoClicker() {
-    // Update the UI with initial values from localStorage
     updateCookieCounter();
-    upgrade.textContent = ('Upgrade: ' + upgradeMoney);
-    autoClicker.textContent = 'Upgrade Auto Clicker: ' + autoClickerCost;
-    autoClicker.style.fontSize = '24px'
+    upgrade.textContent = `Upgrade: ${upgradeMoney}`;
+    autoClicker.textContent = `Upgrade Auto Clicker: ${autoClickerCost}`;
+    autoClicker.style.fontSize = '24px';
 
     const autoClickerActive = localStorage.getItem('autoClickerActive');
 
-    // Restart auto-clicker if it was active before refreshing
+    autoClickerTime = parseInt(localStorage.getItem('autoClickerTime')) || initialAutoClickerTime;
+
     if (autoClickerActive === 'true') {
         startAutoClicker();
     }
 }
 
-// Event listener for window load to initiate auto-clicker after page load
 window.addEventListener('load', initiateAutoClicker);
 
-// Add event listeners
 cookie.addEventListener('click', handleCookieClick);
 upgrade.addEventListener('click', handleUpgradeClick);
 autoClicker.addEventListener('click', handleAutoClickerClick);
