@@ -78,22 +78,22 @@ function handleUpgradeClick() {
 }
 
 function handleAutoClickerClick() {
-    if (clicks >= autoClickerCost) {
+    if (clicks >= autoClickerCost && autoClickerCost < 512000) {
         clicks -= autoClickerCost;
-
         localStorage.setItem('autoClickerActive', 'true');
 
         startAutoClicker();
         autoClickerCost *= 2;
-
-        // Update autoClickerTime to make the auto-clicker exactly 2x faster
         autoClickerTime /= 2;
 
         autoClicker.textContent = `Upgrade Auto Clicker: ${autoClickerCost}`;
         autoClicker.style.fontSize = '25px';
         updateCookieCounter();
-        localStorage.setItem('autoClickerTime', autoClickerTime); // Update autoClickerTime in localStorage
+        localStorage.setItem('autoClickerTime', autoClickerTime);
         updateLocalStorage();
+    } else if (autoClickerCost >= 512000) {
+        autoClicker.textContent = 'Max Level';
+        autoClicker.disabled = true; // Disable further upgrades
     }
 }
 
@@ -111,7 +111,6 @@ function clearAllData() {
     localStorage.setItem('clicksMultiplier', clicksMultiplier);
     localStorage.setItem('upgradeMoney', upgradeMoney);
     
-    // Reset autoClickerTime to its default value
     autoClickerTime = initialAutoClickerTime;
     localStorage.setItem('autoClickerTime', autoClickerTime);
     
@@ -119,7 +118,7 @@ function clearAllData() {
 
     updateCookieCounter();
     upgrade.textContent = `Upgrade: ${upgradeMoney}`;
-    autoClicker.textContent = `Auto Clicker: ${autoClickerCost}`;
+    autoClicker.textContent = `Upgrade Auto Clicker: ${autoClickerCost}`;
 }
 
 function handleConfirmClick() {
