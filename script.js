@@ -136,7 +136,6 @@ function handleCancelClick() {
 
 function initiateAutoClicker() {
     updateCookieCounter();
-    upgrade.textContent = `Upgrade: ${upgradeMoney}`;
     autoClicker.style.fontSize = '24px';
 
     const autoClickerActive = localStorage.getItem('autoClickerActive');
@@ -153,7 +152,16 @@ function initiateAutoClicker() {
     } else {
         autoClicker.textContent = `Upgrade Auto Clicker: ${autoClickerCost}`;
     }
+
+    // Handling the upgrade reaching "infinity" (a very high value)
+    if (upgradeMoney >= 1e100) { // Adjust this value as needed for your scenario
+        upgrade.textContent = 'Max Level';
+        upgrade.disabled = true; // Disable further upgrades
+    } else {
+        upgrade.textContent = `Upgrade: ${upgradeMoney}`;
+    }
 }
+
 
 window.addEventListener('load', initiateAutoClicker);
 
