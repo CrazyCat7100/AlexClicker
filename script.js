@@ -146,20 +146,13 @@ function initiateAutoClicker() {
         startAutoClicker();
     }
 
-    if (autoClickerCost >= 512000) {
-        autoClicker.textContent = 'Max Level';
-        autoClicker.disabled = true; // Disable further upgrades
-    } else {
+    
         autoClicker.textContent = `Upgrade Auto Clicker: ${autoClickerCost}`;
-    }
+    
 
-    // Handling the upgrade reaching "infinity" (a very high value)
-    if (upgradeMoney >= 1e100) { // Adjust this value as needed for your scenario
-        upgrade.textContent = 'Max Level';
-        upgrade.disabled = true; // Disable further upgrades
-    } else {
+    
         upgrade.textContent = `Upgrade: ${upgradeMoney}`;
-    }
+    
 }
 
 
